@@ -11,10 +11,10 @@ const supabase = createClient(
 )
 
 export async function getShopifyClient(agentId: string) {
-  // Fetch the Shopify token stored after OAuth
+  // Fetch the Shopify token stored in metadata after OAuth
   const { data, error } = await supabase
     .from('agents')
-    .select('shopify_domain, shopify_access_token')
+    .select('metadata')
     .eq('id', agentId)
     .single()
 
@@ -22,7 +22,12 @@ export async function getShopifyClient(agentId: string) {
     throw new Error(`Agent not found or no Shopify token: ${agentId}`)
   }
 
-  const { shopify_domain, shopify_access_token } = data
+  const shopify_domain = data.metadata?.shopify_url
+  const shopify_access_token = data.metadata?.shopify_token
+
+  if (!shopify_domain || !shopify_access_token) {
+    throw new Error(`Missing Shopify credentials for agent: ${agentId}`)
+  }
 
   async function shopifyFetch(path: string, options?: RequestInit) {
     const url = `https://${shopify_domain}/admin/api/2024-10${path}`
