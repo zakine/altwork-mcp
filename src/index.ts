@@ -41,7 +41,15 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined, // stateless mode — Railway-friendly
     })
-    await server.connect(transport)
+    // In stateless mode, create a fresh server instance per request
+    const requestServer = new McpServer({
+      name: 'altwork-shopify',
+      version: '1.0.0',
+    })
+    registerEngagementTools(requestServer)
+    registerCustomerIntelligenceTools(requestServer)
+    registerMerchantCopilotTools(requestServer)
+    await requestServer.connect(transport)
     await transport.handleRequest(req, res)
     return
   }
