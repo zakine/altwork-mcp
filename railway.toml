@@ -6,3 +6,6 @@ startCommand = "npm run build && npm start"
 healthcheckPath = "/health"
 healthcheckTimeout = 30
 restartPolicyType = "on_failure"
+
+[[services]]
+port = 8080
